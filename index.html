@@ -390,6 +390,60 @@
 <div class="footer-credit">豐狂出品 - Christmas Eve Edition 2025</div>
 
 <script>
+
+
+
+
+// 等待頁面完全載入
+        window.addEventListener('load', function() {
+            
+            // 設定 2 秒 (2000毫秒) 的延遲
+            setTimeout(function() {
+                speakCantonese("新一年唔好玩咁多電話啦～");
+            }, 2000);
+
+        });
+
+        function speakCantonese(text) {
+            // 檢查瀏覽器是否支援
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                
+                // --- 關鍵設定 ---
+                utterance.lang = 'zh-HK'; // 設定語言為粵語 (香港)
+                utterance.rate = 1;       // 語速 (0.1 ~ 10)
+                utterance.pitch = 1;      // 音高 (0 ~ 2)
+                
+                // 嘗試尋找並指定粵語聲音 (優化體驗)
+                // 有些瀏覽器若不指定 voice，即使設定 zh-HK 也可能用國語讀出
+                const voices = window.speechSynthesis.getVoices();
+                const cantoneseVoice = voices.find(voice => 
+                    voice.lang === 'zh-HK' || voice.name.includes('Cantonese') || voice.name.includes('Hong Kong')
+                );
+                if (cantoneseVoice) {
+                    utterance.voice = cantoneseVoice;
+                }
+
+                // 執行播放
+                window.speechSynthesis.speak(utterance);
+                
+                // 為了除錯，在 Console 顯示狀態
+                console.log("嘗試播放語音：" + text);
+            } else {
+                alert("你的瀏覽器不支援語音合成功能。");
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
     // --- DATABASE (保持不變) ---
     // 如需增加更多生字，請將生成的 JSON 貼在下方對應的 Array 內
     const db_english_learner = [
