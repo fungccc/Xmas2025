@@ -399,18 +399,18 @@
             
             // 設定 2 秒 (2000毫秒) 的延遲
             setTimeout(function() {
-                speakCantonese("Merry Christmas");
+                speakEnglish("Merry Christmas");
             }, 2000);
 
         });
 
-        function speakCantonese(text) {
+        function speakEnglish(text) {
             // 檢查瀏覽器是否支援
             if ('speechSynthesis' in window) {
                 const utterance = new SpeechSynthesisUtterance(text);
                 
                 // --- 關鍵設定 ---
-                utterance.lang = 'zh-HK'; // 設定語言為粵語 (香港)
+                utterance.lang = 'en-GB'; // 設定語言為英國英語
                 utterance.rate = 1;       // 語速 (0.1 ~ 10)
                 utterance.pitch = 1;      // 音高 (0 ~ 2)
                 
@@ -418,7 +418,7 @@
                 // 有些瀏覽器若不指定 voice，即使設定 zh-HK 也可能用國語讀出
                 const voices = window.speechSynthesis.getVoices();
                 const cantoneseVoice = voices.find(voice => 
-                    voice.lang === 'zh-HK' || voice.name.includes('Cantonese') || voice.name.includes('Hong Kong')
+                    voice.lang === 'en-GB' || voice.name.includes('Cantonese') || voice.name.includes('Hong Kong')
                 );
                 if (cantoneseVoice) {
                     utterance.voice = cantoneseVoice;
