@@ -332,12 +332,12 @@
         </div>
         
         <div class="mode-select">
-            <button class="mode-btn-hk" onclick="startQuiz('english_learner')">
+            <button class="mode-btn-hk" onclick="startQuizWithReminder('english_learner')">
                 <span class="btn-label">我是香港小朋友 (I'm from Hong Kong)</span>
                 <span class="btn-action">我想學英文 (Learn English)</span>
             </button>
             
-            <button class="mode-btn-uk" onclick="startQuiz('cantonese_learner')">
+            <button class="mode-btn-uk" onclick="startQuizWithReminder('cantonese_learner')">
                 <span class="btn-label">我是英國小朋友 (I'm from the UK)</span>
                 <span class="btn-action">我想學廣東話 (Learn Cantonese)</span>
             </button>
@@ -528,6 +528,51 @@
     let isAnswering = true;
     let wrongAnswers = [];
     let isReviewMode = false;
+
+
+
+
+
+
+
+
+// 新增：播放提示並開始遊戲的函式
+    function startQuizWithReminder(mode) {
+        // 1. 立即播放廣東話提示 (無延遲)
+        if ('speechSynthesis' in window) {
+            const text = "新一年唔好玩咁多電話啦～";
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'zh-HK'; 
+            utterance.rate = 1;       
+
+            // 嘗試抓取 iOS 較自然的粵語聲音
+            const voices = window.speechSynthesis.getVoices();
+            const cantoneseVoice = voices.find(voice => 
+                voice.name.includes('Sin-ji') || voice.lang === 'zh-HK'
+            );
+            if (cantoneseVoice) {
+                utterance.voice = cantoneseVoice;
+            }
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // 2. 執行原本的開始遊戲邏輯
+        startQuiz(mode);
+    }
+
+    // 預先載入聲音列表 (避免第一次點擊沒聲音)
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.onvoiceschanged = function() {
+            window.speechSynthesis.getVoices();
+        };
+    }
+
+
+
+
+
+
 
     function startQuiz(mode) {
         currentMode = mode;
