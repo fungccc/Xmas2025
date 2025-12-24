@@ -22,22 +22,52 @@
         }
 
         body {
+            /* ...保留字體等設定... */
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg);
-            /* 加入一點雪花背景效果 */
-            background-image: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.05) 1px, transparent 1px), 
-                              radial-gradient(circle at 80% 80%, rgba(255,255,255,0.05) 1px, transparent 1px);
-            background-size: 100px 100px;
+            background-color: var(--bg); /* 保持深藍色背景 */
             color: var(--text);
             margin: 0;
             padding: 20px;
-            padding-bottom: 80px;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             box-sizing: border-box;
+            position: relative; /* 確保雪花定位正確 */
+            overflow-x: hidden; /* 防止雪花飄出螢幕產生橫向捲軸 */
         }
+
+
+
+
+/* --- ❄️ 美觀版動態雪花樣式 ❄️ --- */
+        .snowflake {
+            position: fixed;
+            top: -10px;
+            background-color: #fff;
+            border-radius: 50%;
+            pointer-events: none; /* 讓滑鼠可以穿透雪花點擊按鈕 */
+            z-index: 9999; /* 確保雪花在最上層 */
+            opacity: 0.8;
+            box-shadow: 0 0 5px rgba(255,255,255,0.8); /* 加入光暈讓雪花像發光一樣 */
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-10vh) translateX(0); }
+            100% { transform: translateY(110vh) translateX(20px); } /* 稍微往右飄 */
+        }
+        
+        @keyframes sway {
+            0% { margin-left: 0; }
+            50% { margin-left: 15px; } /* 左右搖擺幅度 */
+            100% { margin-left: 0; }
+        }
+
+
+
+
+
+
 
         .container {
             background: var(--card);
@@ -64,6 +94,7 @@
             width: 100%;
             height: auto;
             display: block;
+            margin: 0 auto;
             /* 讓圖片稍微亮一點，更有節日氣氛 */
             filter: brightness(1.05);
         }
@@ -690,6 +721,48 @@
         wrongAnswers.forEach(i => text += `${i.word} - ${i.meaning}\n`);
         window.location.href = `whatsapp://send?text=${encodeURIComponent(text)}`;
     }
+
+
+
+
+// --- ❄️ 啟動美觀版下雪特效 ❄️ ---
+    function createSnowflakes() {
+        const snowCount = 60; // 雪花數量：可自行調整 (建議 40-80)
+        const container = document.body;
+
+        for (let i = 0; i < snowCount; i++) {
+            const snowflake = document.createElement('div');
+            snowflake.classList.add('snowflake');
+
+            // 1. 隨機大小 (2px 到 7px) - 製造遠近感
+            const size = Math.random() * 5 + 2; 
+            snowflake.style.width = `${size}px`;
+            snowflake.style.height = `${size}px`;
+
+            // 2. 隨機水平位置
+            snowflake.style.left = `${Math.random() * 100}vw`;
+
+            // 3. 隨機透明度 (0.3 到 0.9) - 製造層次感
+            snowflake.style.opacity = Math.random() * 0.6 + 0.3;
+
+            // 4. 隨機飄落速度 (3秒 到 8秒)
+            const duration = Math.random() * 5 + 3;
+            // 5. 隨機延遲開始 (0秒 到 5秒) - 讓雪花不要同時落下
+            const delay = Math.random() * 5;
+            
+            // 結合落下 (fall) 和 搖擺 (sway) 動畫
+            // sway 的時間設為 duration 的一半或隨機，讓飄動更自然
+            snowflake.style.animation = `fall ${duration}s linear ${delay}s infinite, sway ${Math.random()*2+2}s ease-in-out infinite alternate`;
+
+            container.appendChild(snowflake);
+        }
+    }
+
+    // 網頁載入後立即啟動下雪
+    createSnowflakes();
+
+
+
 
 </script>
 
