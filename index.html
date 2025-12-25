@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聖誕中英對照大挑戰 (External Data & Weighted)</title>
+    <style>
+        :root {
+            /* --- 聖誕節雙語主題調色 --- */
+            --bg: #1a2b3c;
+            --card: #ffffff;
+            --text: #2c3e50;
+            --hk-green: #218c74;
+            --uk-red: #c0392b;
+            --accent-gold: #F8B229;
+            --success: #2ECC71;
+            --error: #E74C3C;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* --- 雪花 --- */
+        .snowflake {
+            position: fixed; top: -10px; background-color: #fff; border-radius: 50%;
+            pointer-events: none; z-index: 9999; opacity: 0.8;
+            box-shadow: 0 0 5px rgba(255,255,255,0.8);
+        }
+        @keyframes fall {
+            0% { transform: translateY(-10vh) translateX(0); }
+            100% { transform: translateY(110vh) translateX(20px); }
+        }
+        @keyframes sway {
+            0% { margin-left: 0; } 50% { margin-left: 15px; } 100% { margin-left: 0; }
+        }
+
+        .container {
+            background: var(--card);
+            border-radius: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 550px;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* --- 相片區域 --- */
+        .banner-img-container {
+            margin: -25px -25px 20px -25px;
+            border-bottom: 4px solid var(--accent-gold);
+            border-radius: 25px 25px 0 0;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .banner-img {
+            width: 100%; height: auto; display: block; margin: 0 auto; filter: brightness(1.05);
+        }
+
+        h1 { margin-bottom: 10px; font-size: 26px; color: var(--text); font-weight: 800; line-height: 1.3; }
+        h1 span { color: var(--uk-red); font-size: 0.8em; }
+        
+        .subtitle { 
+            color: #576574; 
+            margin-bottom: 30px; 
+            font-size: 15px; 
+            line-height: 1.6;
+            background: #f1f2f6;
+            padding: 15px;
+            border-radius: 15px;
+            border-left: 5px solid var(--accent-gold);
+            text-align: left;
+        }
+
+        /* --- 按鈕樣式 --- */
+        .mode-select {
+            display: flex; flex-direction: column; gap: 15px; margin-top: 20px;
+        }
+        .mode-select button {
+            color: white; border: none; padding: 18px; border-radius: 15px; font-size: 16px;
+            cursor: pointer; width: 100%; font-weight: 600; transition: all 0.2s;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.15); text-align: left; position: relative; overflow: hidden;
+        }
+        .mode-select button:hover { transform: translateY(-3px); box-shadow: 0 8px 15px rgba(0,0,0,0.2); }
+        /* 載入狀態樣式 */
+        .mode-select button:disabled {
+            background: #bdc3c7; cursor: not-allowed; transform: none; box-shadow: none; opacity: 0.7;
+        }
+
+        .mode-btn-hk { background: linear-gradient(135deg, var(--hk-green), #1dd1a1); }
+        .mode-btn-hk::after {
+            content: '🇭🇰 ➜ 🇬🇧'; position: absolute; right: 20px; top: 50%; transform: translateY(-50%); font-size: 24px; opacity: 0.3;
+        }
+        .mode-btn-uk { background: linear-gradient(135deg, var(--uk-red), #e74c3c); }
+        .mode-btn-uk::after {
+            content: '🇬🇧 ➜ 🇭🇰'; position: absolute; right: 20px; top: 50%; transform: translateY(-50%); font-size: 24px; opacity: 0.3;
+        }
+        .btn-label { display: block; font-size: 0.85em; opacity: 0.9; margin-bottom: 5px; font-weight: normal; }
+        .btn-action { font-size: 1.2em; font-weight: bold; }
+
+        /* --- Level 選擇區域 --- */
+        .level-selection-area { display: none; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .back-btn {
+            background: none; border: none; color: #95a5a6; font-size: 14px; cursor: pointer; margin-bottom: 10px; display: inline-flex; align-items: center; gap: 5px;
+        }
+        .back-btn:hover { color: var(--text); text-decoration: underline; }
+
+        .level-grid {
+            display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 15px 0;
+        }
+        .level-btn {
+            background: white; border: 2px solid #eee; border-radius: 12px; padding: 10px 0;
+            font-weight: bold; color: var(--text); cursor: pointer; position: relative; transition: 0.2s;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .level-btn .lvl-num { font-size: 18px; }
+        .level-btn .lvl-icon { font-size: 12px; margin-top: 3px; }
+        
+        .level-btn.locked { background: #f5f6fa; color: #bdc3c7; border-color: #ecf0f1; cursor: not-allowed; }
+        .level-btn:not(.locked):hover { border-color: var(--accent-gold); transform: translateY(-2px); }
+        .level-btn.completed { background: #eccc68; color: white; border-color: #eccc68; }
+        .level-btn.active-level { border-color: var(--text); box-shadow: 0 0 0 2px var(--accent-gold); }
+
+        .main-start-btn {
+            width: 100%; padding: 16px; border-radius: 15px; border: none; font-size: 18px; font-weight: bold; cursor: pointer;
+            background: linear-gradient(135deg, var(--accent-gold), #f39c12); color: white;
+            box-shadow: 0 5px 15px rgba(243, 156, 18, 0.3); transition: transform 0.2s; margin-top: 10px;
+        }
+        .main-start-btn:disabled { background: #bdc3c7; cursor: not-allowed; box-shadow: none; transform: none; }
+
+        /* --- 測驗區域 --- */
+        .quiz-area { display: none; }
+        .header-info {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;
+            font-size: 14px; font-weight: bold; color: #7f8c8d;
+        }
+        .level-badge { background: var(--accent-gold); color: white; padding: 5px 12px; border-radius: 20px; }
+
+        .term-container {
+            margin: 20px 0; padding: 25px; background: #fff;
+            border: 3px dotted var(--accent-gold); border-radius: 15px; position: relative;
+        }
+        .term-display { font-size: 36px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 15px; flex-wrap: wrap; }
+        .hk-theme .term-display { color: var(--hk-green); }
+        .uk-theme .term-display { color: var(--uk-red); }
+        
+        .term-sub { 
+            display: block; 
+            font-size: 18px; 
+            color: #7f8c8d; 
+            margin-top: 8px; 
+            font-family: "Lucida Sans Unicode", "Arial Unicode MS", monospace; 
+        }
+
+        .option-btn {
+            background: white; border: 2px solid #edf2f7; color: var(--text);
+            text-align: left; display: flex; align-items: center; justify-content: space-between;
+            padding: 15px; border-radius: 12px; width: 100%; margin: 8px 0; font-size: 16px;
+            cursor: pointer; transition: all 0.2s; font-weight: normal;
+        }
+        .option-btn.correct { background: var(--success) !important; color: white; border-color: var(--success); }
+        .option-btn.wrong { background: var(--error) !important; color: white; border-color: var(--error); }
+        .option-btn.disabled { opacity: 0.6; pointer-events: none; }
+
+        .feedback {
+            margin-top: 20px; padding: 15px; border-radius: 12px; background: #f8f9fa;
+            display: none; text-align: left; border-left: 5px solid #ccc;
+        }
+        .feedback.show { display: block; }
+        .feedback.success { border-left-color: var(--success); background-color: #f0fff4; }
+        .feedback.error { border-left-color: var(--error); background-color: #fff5f5; }
+
+        .hidden { display: none; }
+        .footer-credit { position: fixed; bottom: 10px; width: 100%; text-align: center; color: rgba(255,255,255,0.5); font-size: 12px; pointer-events: none; }
+
+        /* FAB & Modal */
+        .fab-container { position: fixed; bottom: 30px; right: 20px; z-index: 100; }
+        .fab-btn {
+            background: var(--uk-red); color: white; border: none; width: 60px; height: 60px; border-radius: 50%;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3); font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        }
+        .badge {
+            position: absolute; top: 0; right: 0; background-color: var(--accent-gold); color: var(--text);
+            font-size: 12px; font-weight: bold; padding: 4px 8px; border-radius: 20px; border: 2px solid #fff; display: none;
+        }
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(26, 43, 60, 0.85);
+            z-index: 1000; display: none; justify-content: center; align-items: center;
+        }
+        .modal-content {
+            background: white; width: 90%; max-width: 500px; border-radius: 16px; padding: 25px; max-height: 80vh; display: flex; flex-direction: column;
+        }
+        .mistake-item { padding: 10px 0; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; }
+        .action-btn { background: #eee; border:none; padding:10px; border-radius:8px; cursor:pointer; width:100%; margin-top:5px; color: var(--text);}
+        .review-btn { background: var(--accent-gold); color: white; border: none; padding: 12px; border-radius: 10px; font-size: 16px; cursor: pointer; width: 100%; font-weight: bold; margin-bottom: 10px; display: none;}
+        .next-btn { background: var(--success); color: white; border: none; padding: 15px; border-radius: 12px; font-size: 16px; cursor: pointer; width: 100%; font-weight: 600; margin-top: 15px;}
+
+        /* --- Gift Overlay --- */
+        .gift-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000;
+            display: none; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center;
+        }
+        .gift-box { font-size: 100px; margin-bottom: 20px; animation: bounce 2s infinite; }
+        @keyframes bounce { 0%, 20%, 50%, 80%, 100% {transform: translateY(0);} 40% {transform: translateY(-30px);} 60% {transform: translateY(-15px);} }
+        .gift-btn {
+            background: linear-gradient(135deg, #e1b12c, #fbc531); color: #2f3640; border: none; padding: 15px 40px;
+            font-size: 20px; border-radius: 30px; cursor: pointer; font-weight: 800; box-shadow: 0 0 20px rgba(251, 197, 49, 0.5);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="start-screen">
+        <div class="banner-img-container">
+            <img src="Christmas_Eve.jpg" alt="Christmas Family" class="banner-img" onerror="this.style.display='none'">
+        </div>
+
+        <h1>聖誕中英對照大挑戰<br><span>Christmas Bilingual Challenge</span></h1>
+        
+        <div class="subtitle">
+            🎅 <strong>歡迎大家！Welcome everyone!</strong><br>
+            在這個平安夜，香港和英國的小朋友一起交換語言，學習新詞彙吧！<br>
+            Let's exchange languages and learn together this festive season!
+        </div>
+
+        <div id="role-select-area" class="mode-select">
+            <button id="btn-hk" class="mode-btn-hk" onclick="chooseRole('english_learner')">
+                <span class="btn-label">我是香港小朋友 (I'm from Hong Kong)</span>
+                <span class="btn-action">我想學英文 (Learn English)</span>
+            </button>
+            
+            <button id="btn-uk" class="mode-btn-uk" onclick="chooseRole('cantonese_learner')">
+                <span class="btn-label">我是英國小朋友 (I'm from the UK)</span>
+                <span class="btn-action">我想學廣東話 (Learn Cantonese)</span>
+            </button>
+        </div>
+        <p style="font-size:12px; color:#aaa; margin-top:25px;">Merry Christmas & Happy Learning!</p>
+        <div id="level-select-area" class="level-selection-area">
+            <button onclick="backToRoles()" class="back-btn">⬅ Back / 重選角色</button>
+            <h3 style="margin:0 0 10px 0; color:var(--text);">Select Level (選擇等級)</h3>
+            
+            <div class="level-grid" id="level-grid">
+                </div>
+
+            <button id="main-start-btn" class="main-start-btn" onclick="startGame()">
+                Start Challenge!
+            </button>
+
+            <p id="save-info" style="font-size:12px; color:#bdc3c7; margin-top:15px; cursor:pointer;" onclick="clearProgress()">
+                Progress Auto-Saved. (Click to Reset)
+            </p>
+        </div>
+    </div>
+
+    <div id="quiz-screen" class="quiz-area">
+        <div class="header-info">
+            <button onclick="goHome()" style="border:none; background:none; font-size:24px; cursor:pointer;">🏠</button>
+            <span class="level-badge" id="level-badge">Level 1</span>
+            <span>Score: <span id="score-display">0</span> / <span id="target-score">10</span></span>
+        </div>
+
+        <div class="term-container">
+            <div class="term-display">
+                <span id="question-term">Loading...</span>
+                <button onclick="playAudio()" style="background:#f0f0f0; border:none; border-radius:50%; width:44px; height:44px; font-size:20px; cursor:pointer;">🔊</button>
+            </div>
+            <span id="question-phonetic" class="term-sub"></span>
+        </div>
+
+        <div id="options-container"></div>
+
+        <div id="feedback-area" class="feedback">
+            <h3 id="feedback-title" style="margin:0 0 10px 0;"></h3>
+            <div id="feedback-content" style="line-height:1.6;"></div>
+        </div>
+
+        <button id="next-btn" class="next-btn hidden" onclick="nextQuestion()">Next Question (下一題)</button>
+        <button class="action-btn" style="margin-top:15px;" onclick="goHome()">Quit (退出)</button>
+    </div>
+</div>
+
+<div class="fab-container hidden" id="fab-mistakes">
+    <button class="fab-btn" onclick="openMistakesModal()">🎁 <span class="badge" id="mistake-count">0</span></button>
+</div>
+
+<div class="modal-overlay" id="mistake-modal">
+    <div class="modal-content">
+        <h3 style="margin:0;">錯題本 (Mistake List) 📝</h3>
+        <div style="flex:1; overflow-y:auto; margin:15px 0;" id="mistakes-list"></div>
+        <button id="review-mistakes-btn" class="review-btn" onclick="startReviewMistakes()">🔄 重溫錯題 (Review)</button>
+        <button class="action-btn" onclick="closeMistakesModal()">Close</button>
+    </div>
+</div>
+
+<div id="gift-overlay" class="gift-overlay">
+    <div class="gift-box">🎁</div>
+    <div id="gift-message" style="font-size:24px; font-weight:bold; margin-bottom:30px;"></div>
+    <button class="gift-btn" onclick="claimGift()">Yeah! 收禮物！</button>
+</div>
+
+<div class="footer-credit">豐狂出品 - Christmas Eve Edition 2025</div>
+
+<script>
+    // --- 1. 定義外部資料 (模擬伺服器上的 JSON 檔案) ---
+    // 在真實環境中，這會是一個遠端 URL，例如 "https://api.myserver.com/xmas-vocab.json"
+    // 為了讓你直接複製能用，我這裡建立一個 Blob URL 來模擬
+    const MOCK_EXTERNAL_DATA = {
+        "english_learner": [
+            {"id":1,"word":"Run","ipa":"/rʌn/","meaning":"跑","level":1},
+            {"id":2,"word":"Jump","ipa":"/dʒʌmp/","meaning":"跳","level":1},
+            {"id":3,"word":"Walk","ipa":"/wɔːk/","meaning":"行路","level":1},
+            {"id":4,"word":"Eat","ipa":"/iːt/","meaning":"食","level":1},
+            {"id":11,"word":"Sleep","ipa":"/sliːp/","meaning":"睡覺","level":2},
+            {"id":12,"word":"Drink","ipa":"/drɪŋk/","meaning":"飲","level":2},
+            {"id":21,"word":"Happy","ipa":"/ˈhæpi/","meaning":"開心","level":3},
+            {"id":31,"word":"School","ipa":"/skuːl/","meaning":"學校","level":4},
+            // 聖誕特別題目 ID: 1001-1030
+            {"id":1001,"word":"Christmas","ipa":"/ˈkrɪsməs/","meaning":"聖誕節","level":5},
+            {"id":1002,"word":"Santa","ipa":"/ˈsæntə/","meaning":"聖誕老人","level":5},
+            {"id":1003,"word":"Reindeer","ipa":"/ˈreɪndɪə/","meaning":"馴鹿","level":5},
+            {"id":1004,"word":"Snowman","ipa":"/ˈsnəʊmæn/","meaning":"雪人","level":1}, 
+            {"id":1005,"word":"Gift","ipa":"/ɡɪft/","meaning":"禮物","level":2}
+        ],
+        "cantonese_learner": [
+            {"id":1,"word":"食","jyutping":"sik6","meaning":"To eat","level":1},
+            {"id":2,"word":"飲","jyutping":"jam2","meaning":"To drink","level":1},
+            {"id":11,"word":"瞓","jyutping":"fan3","meaning":"To sleep","level":2},
+            {"id":21,"word":"開心","jyutping":"hoi1 sam1","meaning":"Happy","level":3},
+            {"id":31,"word":"學校","jyutping":"hok6 haau6","meaning":"School","level":4},
+            // 聖誕特別題目
+            {"id":1001,"word":"聖誕快樂","jyutping":"sing3 daan3 faai3 lok6","meaning":"Merry Christmas","level":5},
+            {"id":1002,"word":"禮物","jyutping":"lai5 mat6","meaning":"Present","level":5},
+            {"id":1003,"word":"聖誕老人","jyutping":"sing3 daan3 lou5 jan4","meaning":"Santa Claus","level":5},
+            {"id":1004,"word":"雪人","jyutping":"syut3 jan4","meaning":"Snowman","level":1},
+            {"id":1005,"word":"薑餅人","jyutping":"goeng1 beng2 jan4","meaning":"Gingerbread Man","level":2}
+        ]
+    };
+
+    // 建立虛擬 URL (模擬 fetch 目標)
+    const blob = new Blob([JSON.stringify(MOCK_EXTERNAL_DATA)], {type: 'application/json'});
+    // const EXTERNAL_DATA_URL = URL.createObjectURL(blob); 
+    // 如果你有真實網址，請把上面這行換成: const EXTERNAL_DATA_URL = "https://your-url.com/data.json";
+    const EXTERNAL_DATA_URL = "https://fungccc.github.io/Xmas2025/db/data.json";
+    // --- 全域變數初始化 (現在是空的) ---
+    let db_english_learner = [];
+    let db_cantonese_learner = [];
+
+    let currentRole = 'english_learner';
+    let currentData = [];
+    let selectedLevel = 1;
+    let maxUnlockedLevel = 1; 
+    let score = 0;
+    let targetScore = 10; 
+    let isAnswering = true;
+    let currentQuestion = null;
+    let wrongAnswers = [];
+    let isReviewMode = false;
+
+    window.addEventListener('load', function() {
+        createSnowflakes();
+        loadProgress();
+        // 呼叫外部資料讀取
+        loadExternalData();
+
+        // 播放開場歡迎音效
+        if ('speechSynthesis' in window) {
+            setTimeout(() => {
+                const u = new SpeechSynthesisUtterance("Merry Christmas");
+                u.lang = 'en-GB'; u.rate = 0.9;
+                window.speechSynthesis.speak(u);
+            }, 500);
+        }
+    });
+
+    // --- 2. 新增：讀取外部資料函數 ---
+    async function loadExternalData() {
+        const btnHk = document.getElementById('btn-hk');
+        const btnUk = document.getElementById('btn-uk');
+        const originalHkText = btnHk.querySelector('.btn-action').textContent;
+        const originalUkText = btnUk.querySelector('.btn-action').textContent;
+
+        // 狀態管理：鎖定按鈕，顯示 Loading
+        btnHk.disabled = true;
+        btnUk.disabled = true;
+        btnHk.querySelector('.btn-action').textContent = "載入題庫中... (Loading...)";
+        btnUk.querySelector('.btn-action').textContent = "載入題庫中... (Loading...)";
+
+        try {
+            // 模擬網路延遲 1秒，讓 Loading 效果更明顯 (實際使用可移除 setTimeout)
+            await new Promise(r => setTimeout(r, 1000));
+
+            // 使用 fetch 讀取資料
+            const response = await fetch(EXTERNAL_DATA_URL);
+            if (!response.ok) throw new Error('Network response was not ok');
+            
+            const data = await response.json();
+            
+            // 填入資料庫
+            db_english_learner = data.english_learner;
+            db_cantonese_learner = data.cantonese_learner;
+
+            console.log("Data loaded successfully!");
+
+        } catch (error) {
+            console.error('Fetch error:', error);
+            alert("Error loading question bank. Please refresh.");
+        } finally {
+            // 恢復按鈕狀態
+            btnHk.disabled = false;
+            btnUk.disabled = false;
+            btnHk.querySelector('.btn-action').textContent = originalHkText;
+            btnUk.querySelector('.btn-action').textContent = originalUkText;
+        }
+    }
+
+    // --- 流程控制 ---
+    function chooseRole(role) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance("新一年唔好玩咁多電話啦");
+            u.lang = 'zh-HK'; u.rate = 1;
+            window.speechSynthesis.speak(u);
+        }
+
+        currentRole = role;
+        // 確保資料已載入
+        currentData = (role === 'english_learner') ? db_english_learner : db_cantonese_learner;
+        
+        if (currentData.length === 0) {
+            alert("Data not loaded yet. Please wait.");
+            return;
+        }
+
+        document.getElementById('role-select-area').style.display = 'none';
+        document.getElementById('level-select-area').style.display = 'block';
+        
+        renderLevelGrid();
+    }
+
+    function backToRoles() {
+        document.getElementById('role-select-area').style.display = 'flex';
+        document.getElementById('level-select-area').style.display = 'none';
+    }
+
+    function renderLevelGrid() {
+        const grid = document.getElementById('level-grid');
+        grid.innerHTML = '';
+        for (let i = 1; i <= 5; i++) {
+            const btn = document.createElement('div');
+            btn.className = 'level-btn';
+            if (i > maxUnlockedLevel) {
+                btn.classList.add('locked');
+                btn.innerHTML = `<span class="lvl-num">${i}</span><span class="lvl-icon">🔒</span>`;
+            } else {
+                btn.onclick = () => { selectedLevel = i; renderLevelGrid(); };
+                if (i === selectedLevel) btn.classList.add('active-level');
+                if (i < maxUnlockedLevel) {
+                    btn.classList.add('completed');
+                    btn.innerHTML = `<span class="lvl-num">${i}</span><span class="lvl-icon">⭐</span>`;
+                } else {
+                    btn.innerHTML = `<span class="lvl-num">${i}</span><span class="lvl-icon">🔥</span>`;
+                }
+            }
+            grid.appendChild(btn);
+        }
+        
+        const btnText = document.getElementById('main-start-btn');
+        if (selectedLevel > maxUnlockedLevel) {
+            btnText.disabled = true;
+            btnText.textContent = "Locked";
+        } else {
+            btnText.disabled = false;
+            btnText.textContent = `Start Level ${selectedLevel}`;
+        }
+    }
+
+    function startGame() {
+        const quizScreen = document.getElementById('quiz-screen');
+        quizScreen.classList.remove('hk-theme', 'uk-theme');
+        quizScreen.classList.add(currentRole === 'english_learner' ? 'hk-theme' : 'uk-theme');
+
+        score = 0;
+        isReviewMode = false;
+        wrongAnswers = [];
+        updateMistakeBadge();
+
+        document.getElementById('start-screen').style.display = 'none';
+        quizScreen.style.display = 'block';
+        document.getElementById('fab-mistakes').classList.remove('hidden');
+        document.getElementById('level-badge').textContent = `Level ${selectedLevel}`;
+        document.getElementById('target-score').textContent = targetScore;
+
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance(currentRole === 'english_learner' ? "Let's Go!" : "開始啦！");
+            u.lang = 'zh-HK'; window.speechSynthesis.speak(u);
+        }
+
+        nextQuestion();
+    }
+
+    function goHome() {
+        document.getElementById('quiz-screen').style.display = 'none';
+        document.getElementById('start-screen').style.display = 'block';
+        document.getElementById('fab-mistakes').classList.add('hidden');
+        document.getElementById('role-select-area').style.display = 'none';
+        document.getElementById('level-select-area').style.display = 'block';
+        renderLevelGrid();
+    }
+
+    // --- 3. 新增：加權隨機選擇函數 ---
+    function getWeightedItem(pool) {
+        // Step 1: 計算總權重
+        let totalWeight = 0;
+        const weightedPool = pool.map(item => {
+            // 判斷是否為聖誕題目 (ID 1001 - 1030)
+            const isChristmas = item.id >= 1001 && item.id <= 1030;
+            const weight = isChristmas ? 5 : 1; // 聖誕題目權重為 5，普通為 1
+            totalWeight += weight;
+            return { item, weight };
+        });
+
+        // Step 2: 隨機選擇
+        let randomNum = Math.random() * totalWeight;
+        
+        for (const entry of weightedPool) {
+            randomNum -= entry.weight;
+            if (randomNum <= 0) {
+                return entry.item;
+            }
+        }
+        // Fallback (應該不會發生)
+        return pool[Math.floor(Math.random() * pool.length)];
+    }
+
+    function nextQuestion() {
+        isAnswering = true;
+        document.getElementById('score-display').textContent = score;
+        document.getElementById('next-btn').classList.add('hidden');
+        document.getElementById('feedback-area').classList.remove('show', 'success', 'error');
+
+        // 篩選目前等級的題目
+        let levelPool = currentData.filter(item => item.level === selectedLevel);
+        if(levelPool.length === 0) levelPool = currentData; 
+
+        if (isReviewMode && wrongAnswers.length > 0) {
+             currentQuestion = getWeightedItem(wrongAnswers); // 錯題複習也套用加權(如果錯題裡有聖誕詞)
+        } else {
+             // 使用加權隨機選擇
+             currentQuestion = getWeightedItem(levelPool);
+        }
+
+        document.getElementById('question-term').textContent = currentQuestion.word;
+        document.getElementById('question-phonetic').textContent = currentQuestion.ipa || currentQuestion.jyutping || "";
+        
+        // 產生選項
+        const options = [currentQuestion];
+        while (options.length < 4) {
+            const r = getWeightedItem(currentData); // 選項也稍微偏向聖誕詞，增加干擾樂趣
+            if (!options.some(o => o.id === r.id)) options.push(r);
+        }
+        options.sort(() => Math.random() - 0.5);
+
+        const container = document.getElementById('options-container');
+        container.innerHTML = '';
+        options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.textContent = opt.meaning;
+            btn.onclick = () => checkAnswer(opt, btn);
+            container.appendChild(btn);
+        });
+    }
+
+    function checkAnswer(selected, btn) {
+        if (!isAnswering) return;
+        isAnswering = false;
+        const isCorrect = selected.id === currentQuestion.id;
+        const feedback = document.getElementById('feedback-area');
+        
+        document.querySelectorAll('.option-btn').forEach(b => {
+            if (b.textContent === currentQuestion.meaning) b.classList.add('correct');
+            else b.classList.add('disabled');
+        });
+
+        if (isCorrect) {
+            score++;
+            document.getElementById('score-display').textContent = score;
+            btn.classList.add('correct');
+            feedback.className = 'feedback show success';
+            document.getElementById('feedback-title').textContent = "Correct! 答對了！🎉";
+            playAudio();
+
+            if(isReviewMode) {
+                wrongAnswers = wrongAnswers.filter(q => q.id !== currentQuestion.id);
+                updateMistakeBadge();
+                if(wrongAnswers.length === 0) {
+                    setTimeout(() => { alert("All mistakes cleared! 回到主目錄。"); isReviewMode = false; goHome(); }, 1000);
+                    return;
+                }
+            }
+
+            if (score >= targetScore && !isReviewMode) {
+                setTimeout(showReward, 1500);
+                return;
+            }
+        } else {
+            if (!wrongAnswers.some(q => q.id === currentQuestion.id)) {
+                wrongAnswers.push(currentQuestion);
+                updateMistakeBadge();
+            }
+            btn.classList.add('wrong');
+            feedback.className = 'feedback show error';
+            document.getElementById('feedback-title').textContent = "Oops! 記住這一個:";
+        }
+
+        const phonetic = currentQuestion.ipa || currentQuestion.jyutping || "";
+        document.getElementById('feedback-content').innerHTML = `<strong>${currentQuestion.word}</strong> <span style='color:#7f8c8d'>${phonetic}</span><br>${currentQuestion.meaning}`;
+        document.getElementById('next-btn').classList.remove('hidden');
+    }
+
+    function showReward() {
+        document.getElementById('gift-overlay').style.display = 'flex';
+        const msg = document.getElementById('gift-message');
+        if (selectedLevel === 5) {
+            msg.innerHTML = `🎉 MISSION COMPLETE! 🎉<br>太厲害了！完成 Level 5！<br>找 Uncle 豐 拿禮物！`;
+        } else {
+            msg.innerHTML = `Level ${selectedLevel} Completed!<br>找媽媽拿 30分鐘 手機時間！`;
+        }
+        if (selectedLevel === maxUnlockedLevel && selectedLevel < 5) {
+            maxUnlockedLevel++;
+            saveProgress();
+        }
+    }
+
+    function claimGift() {
+        document.getElementById('gift-overlay').style.display = 'none';
+        if (selectedLevel < 5) selectedLevel++;
+        goHome();
+    }
+
+    function loadProgress() {
+        const saved = localStorage.getItem('xmas_quiz_level_v3');
+        if (saved) {
+            maxUnlockedLevel = JSON.parse(saved).maxLevel || 1;
+            selectedLevel = Math.min(maxUnlockedLevel, 5);
+        }
+    }
+    function saveProgress() { localStorage.setItem('xmas_quiz_level_v3', JSON.stringify({ maxLevel: maxUnlockedLevel })); }
+    function clearProgress() { if(confirm("Reset?")) { localStorage.removeItem('xmas_quiz_level_v3'); location.reload(); } }
+    
+    function playAudio() {
+        if (!currentQuestion) return;
+        let lang = (currentRole === 'english_learner') ? 'en-GB' : 'zh-HK';
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance(currentQuestion.word);
+            u.lang = lang; u.rate = 0.9;
+            window.speechSynthesis.speak(u);
+        }
+    }
+    function updateMistakeBadge() {
+        const c = wrongAnswers.length;
+        document.getElementById('mistake-count').textContent = c;
+        document.getElementById('mistake-count').style.display = c > 0 ? 'block' : 'none';
+        document.getElementById('review-mistakes-btn').style.display = c > 0 ? 'block' : 'none';
+    }
+    function openMistakesModal() {
+        const list = document.getElementById('mistakes-list');
+        list.innerHTML = '';
+        if(wrongAnswers.length === 0) list.innerHTML = '<p style="color:#999; text-align:center;">No mistakes yet.</p>';
+        else wrongAnswers.forEach(i => list.innerHTML += `<div class="mistake-item"><b>${i.word}</b><span>${i.meaning}</span></div>`);
+        document.getElementById('mistake-modal').style.display = 'flex';
+    }
+    function closeMistakesModal() { document.getElementById('mistake-modal').style.display = 'none'; }
+    function startReviewMistakes() {
+        if (wrongAnswers.length === 0) return;
+        isReviewMode = true;
+        closeMistakesModal();
+        alert("Review Mode Started!");
+        nextQuestion();
+    }
+    function createSnowflakes() {
+        for(let i=0; i<60; i++) {
+            const s = document.createElement('div');
+            s.className = 'snowflake';
+            s.style.width = s.style.height = (Math.random()*5+2)+'px';
+            s.style.left = (Math.random()*100)+'vw';
+            s.style.animation = `fall ${Math.random()*5+3}s linear ${Math.random()*5}s infinite, sway ${Math.random()*2+2}s ease-in-out infinite alternate`;
+            document.body.appendChild(s);
+        }
+    }
+</script>
+</body>
+</html>
