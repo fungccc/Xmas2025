@@ -1263,7 +1263,6 @@
 {"id":198,"word":"遲","jyutping":"ci4","meaning":"Late","level":1},
 {"id":199,"word":"快","jyutping":"faai3","meaning":"Fast; quick","level":1},
 {"id":200,"word":"慢","jyutping":"maan6","meaning":"Slow","level":1},
-const db_cantonese_learner = [
 {"id":201,"word":"瞓覺","jyutping":"fan3 gaau3","meaning":"To sleep","level":2},
 {"id":202,"word":"起床","jyutping":"hei2 cong4","meaning":"To get out of bed","level":2},
 {"id":203,"word":"刷牙膏","jyutping":"caat3 ngaa4 gou1","meaning":"Toothpaste","level":2},
@@ -1464,7 +1463,6 @@ const db_cantonese_learner = [
 {"id":398,"word":"頭痛","jyutping":"tau4 tung3","meaning":"Headache","level":2},
 {"id":399,"word":"肚痛","jyutping":"tou5 tung3","meaning":"Stomachache","level":2},
 {"id":400,"word":"腹瀉","jyutping":"fuk1 se3","meaning":"Diarrhea","level":2},
-const db_cantonese_learner = [
 {"id":401,"word":"開心","jyutping":"hoi1 sam1","meaning":"Happy; pleased","level":3},
 {"id":402,"word":"傷心","jyutping":"soeng1 sam1","meaning":"Sad; heartbroken","level":3},
 {"id":403,"word":"生氣","jyutping":"saang1 hei3","meaning":"Angry; upset","level":3},
