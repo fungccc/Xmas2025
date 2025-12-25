@@ -1,5 +1,5 @@
 {
-"db_english_learner": [
+"english_learner": [
   {"id":1,"word":"Run","ipa":"/rʌn/","meaning":"跑","level":1},
   {"id":2,"word":"Cat","ipa":"/kæt/","meaning":"貓","level":1},
   {"id":3,"word":"Dog","ipa":"/dɒg/","meaning":"狗","level":1},
@@ -1062,7 +1062,7 @@
   {"id":1060,"word":"Merry Christmas","ipa":"/ˈmɛri ˈkrɪsməs/","meaning":"聖誕快樂（祝福語）","level":1}
 ],
 
-"db_cantonese_learner": [
+"cantonese_learner": [
 {"id":1,"word":"食","jyutping":"sik6","meaning":"To eat","level":1},
 {"id":2,"word":"飲","jyutping":"jam2","meaning":"To drink","level":1},
 {"id":3,"word":"行","jyutping":"haang4","meaning":"To walk","level":1},
