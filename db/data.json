@@ -2124,5 +2124,5 @@ const db_cantonese_learner = [
 {"id":1058,"word":"捐贈禮物","jyutping":"gyun1 zang3 lai5 mat6","meaning":"To donate gifts","level":4},
 {"id":1059,"word":"聖誕燭光晚會","jyutping":"sing3 daan3 zuk1 gwong1 maan5 wui2","meaning":"Christmas candlelight service/gathering","level":4},
 {"id":1060,"word":"聖誕節快樂（縮寫）","jyutping":"sing3 daan3 zit3 faai3 lok6","meaning":"Merry Christmas (abbreviated phrase)","level":1}
-]
+];
 
